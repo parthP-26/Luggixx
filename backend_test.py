@@ -69,9 +69,13 @@ class LuggixxAPITester:
         """Test user registration for both customer and porter roles"""
         print("\n=== Testing User Registration ===")
         
+        # Generate unique emails for each test run
+        import time
+        timestamp = str(int(time.time()))
+        
         # Test customer registration
         customer_data = {
-            "email": "john.doe@example.com",
+            "email": f"john.doe.{timestamp}@example.com",
             "password": "securepass123",
             "name": "John Doe",
             "phone": "+91-9876543220",
@@ -92,7 +96,7 @@ class LuggixxAPITester:
         
         # Test porter registration
         porter_data = {
-            "email": "porter.new@luggixx.com",
+            "email": f"porter.new.{timestamp}@luggixx.com",
             "password": "porterpass123",
             "name": "New Porter",
             "phone": "+91-9876543221",
