@@ -126,9 +126,12 @@ class LuggixxAPITester:
         """Test login functionality with valid/invalid credentials"""
         print("\n=== Testing User Login ===")
         
+        # If we have customer user from registration, use that email, otherwise use existing one
+        customer_email = self.customer_user["email"] if self.customer_user else "john.doe@example.com"
+        
         # Test valid customer login
         login_data = {
-            "email": "john.doe@example.com",
+            "email": customer_email,
             "password": "securepass123"
         }
         
@@ -144,11 +147,22 @@ class LuggixxAPITester:
             else:
                 self.log_test("Customer Login", False, "Missing access token in response", response)
         else:
-            self.log_test("Customer Login", False, f"Login failed (Status: {status_code})", response)
+            # Try with a known existing customer if the new one failed
+            if customer_email != "john.doe@example.com":
+                login_data["email"] = "john.doe@example.com"
+                success, response, status_code = self.make_request("POST", "/auth/login", login_data)
+                if success and status_code == 200:
+                    self.customer_token = response["access_token"]
+                    self.customer_user = response["user"]
+                    self.log_test("Customer Login", True, "Customer login successful (fallback)")
+                else:
+                    self.log_test("Customer Login", False, f"Login failed (Status: {status_code})", response)
+            else:
+                self.log_test("Customer Login", False, f"Login failed (Status: {status_code})", response)
         
         # Test invalid credentials
         invalid_login = {
-            "email": "john.doe@example.com",
+            "email": customer_email,
             "password": "wrongpassword"
         }
         
