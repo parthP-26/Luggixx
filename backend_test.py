@@ -26,6 +26,7 @@ class LuggixxAPITester:
         self.customer_user = None
         self.porter_user = None
         self.test_ride_id = None
+        self.assigned_porter_id = None
         
     def log_test(self, test_name: str, success: bool, message: str, details: Any = None):
         """Log test results"""
