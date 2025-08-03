@@ -243,6 +243,7 @@ class LuggixxAPITester:
         if success and status_code == 200:
             if "id" in response and "porter_id" in response and response["status"] == "assigned":
                 self.test_ride_id = response["id"]
+                self.assigned_porter_id = response["porter_id"]
                 self.log_test("Ride Request Creation", True, "Ride request created and auto-assigned successfully")
                 self.log_test("Auto-Assignment", True, f"Ride auto-assigned to porter: {response.get('porter_name', 'Unknown')}")
             else:
