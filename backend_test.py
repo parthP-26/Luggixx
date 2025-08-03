@@ -285,12 +285,40 @@ class LuggixxAPITester:
         """Test ride status updates by porters"""
         print("\n=== Testing Ride Status Updates ===")
         
-        if not self.porter_token or not self.test_ride_id:
-            self.log_test("Ride Status Updates", False, "No porter token or test ride available")
+        if not self.test_ride_id or not self.assigned_porter_id:
+            self.log_test("Ride Status Updates", False, "No test ride or assigned porter available")
+            return
+        
+        # Get the correct porter token for the assigned porter
+        assigned_porter_token = None
+        
+        # Try to login as the assigned porter (we need to find which static porter was assigned)
+        static_porters = [
+            {"email": "porter1@luggixx.com", "id": None},
+            {"email": "porter2@luggixx.com", "id": None},
+            {"email": "porter3@luggixx.com", "id": None},
+            {"email": "porter4@luggixx.com", "id": None},
+            {"email": "porter5@luggixx.com", "id": None}
+        ]
+        
+        # Login to each porter to find the one with matching ID
+        for porter in static_porters:
+            login_data = {
+                "email": porter["email"],
+                "password": "password123"
+            }
+            
+            success, response, status_code = self.make_request("POST", "/auth/login", login_data)
+            if success and status_code == 200 and response["user"]["id"] == self.assigned_porter_id:
+                assigned_porter_token = response["access_token"]
+                break
+        
+        if not assigned_porter_token:
+            self.log_test("Ride Status Updates", False, "Could not get token for assigned porter")
             return
         
         # Test porter updating ride status to in_progress
-        headers = self.get_auth_headers(self.porter_token)
+        headers = self.get_auth_headers(assigned_porter_token)
         success, response, status_code = self.make_request("PUT", f"/rides/{self.test_ride_id}/status?status=in_progress", headers=headers)
         
         if success and status_code == 200:
